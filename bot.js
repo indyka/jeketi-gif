@@ -20,40 +20,45 @@ var T = new Twit({
 
 console.log('Listening to Twitter...');
 
-var streamT = T.stream('lists/statuses', { slug: 'gif', owner_screen_name: 'jeketigif' });
-
-streamT.on('tweet', function (tweet) {
-  console.log(tweet.screen_name + ': ' + tweet.text);
-  keyword = tweet.text.split(" ");
-  giphy.translate({s: keyword[Math.floor(Math.random() * keyword.length)]}, function(error, gif, res){
-    url = "https://media.giphy.com/media/" + gif.data.id + "/giphy.gif";
-    
-    request({
-      method: 'GET',
-      url: url,
-      encoding: 'binary'
-    }, function(error, response, body){
-
-      var b = new Buffer(body.toString(), 'binary');
-      image = b.toString('base64');
-
-      T.post('media/upload', { media_data: image }, function (err, data, response) {
-        var mediaIdStr = data.media_id_string
-        var meta_params = { media_id: mediaIdStr }
-        
-        T.post('media/metadata/create', meta_params, function (err, data, response) {
-          if (!err) {  
-            T.post('statuses/update', { status: '@' + tweet.user.screen_name, in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
-              console.log(data)
-            });
-          } else {
-            console.log('error cuk');
-          }
-        })
-      })
-    });
+T.get('lists/members', { slug: 'gif', owner_id: '998239643463139328', count: 70 },  function (err, data, response) {
+  users = data.users.map(a => a.id_str);
+  console.log(users);
+  var streamT = T.stream('statuses/filter', { follow: users });
+  streamT.on('tweet', function (tweet) {
+    console.log(tweet.user.screen_name + ': ' + tweet.text);
+    if (isInArray(tweet.user.id_str, users)) {
+      keyword = tweet.text.split(" ");
+      giphy.translate({s: keyword[Math.floor(Math.random() * keyword.length)]}, function(error, gif, res){
+        url = "https://media.giphy.com/media/" + gif.data.id + "/giphy.gif"; 
+        request({
+          method: 'GET',
+          url: url,
+          encoding: 'binary'
+        }, function(error, response, body){
+          var b = new Buffer(body.toString(), 'binary');
+          image = b.toString('base64');
+          T.post('media/upload', { media_data: image }, function (err, data, response) {
+            var mediaIdStr = data.media_id_string
+            var meta_params = { media_id: mediaIdStr }    
+            T.post('media/metadata/create', meta_params, function (err, data, response) {
+              if (!err) {  
+                T.post('statuses/update', { status: '@' + tweet.user.screen_name, in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
+                  console.log('[REPLY] ' + data.user.screen_name + ': ' + data.text);
+                });
+              } else {
+                console.log('[ERROR] ' + response);
+              }
+            })
+          })
+        });
+      });
+    }
   });
-});
+})
+
+function isInArray(value, array) {
+  return array.indexOf(value) > -1;
+}
 
 
 
