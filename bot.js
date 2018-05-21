@@ -18,7 +18,9 @@ var T = new Twit({
   timeout_ms: 60*1000,
 });
 
-var streamT = T.stream('lists/statuses', { slug: 'team-t', owner_screen_name: 'officialjkt48' });
+console.log('Listening to Twitter...');
+
+var streamT = T.stream('lists/statuses', { slug: 'gif', owner_screen_name: 'jeketigif' });
 
 streamT.on('tweet', function (tweet) {
   console.log(tweet.screen_name + ': ' + tweet.text);
