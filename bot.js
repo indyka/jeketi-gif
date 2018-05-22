@@ -28,7 +28,8 @@ T.get('lists/members', { slug: 'gif', owner_id: '998239643463139328', count: 70 
     console.log(tweet.user.screen_name + ': ' + tweet.text);
     if (isInArray(tweet.user.id_str, users)) {
       keyword = tweet.text.split(" ");
-      giphy.translate({s: keyword[Math.floor(Math.random() * keyword.length)]}, function(error, gif, res){
+      keyword = keyword[Math.floor(Math.random() * keyword.length)]
+      giphy.translate({s: keyword}, function(error, gif, res){
         url = "https://media.giphy.com/media/" + gif.data.id + "/giphy.gif"; 
         request({
           method: 'GET',
@@ -42,7 +43,7 @@ T.get('lists/members', { slug: 'gif', owner_id: '998239643463139328', count: 70 
             var meta_params = { media_id: mediaIdStr }    
             T.post('media/metadata/create', meta_params, function (err, data, response) {
               if (!err) {  
-                T.post('statuses/update', { status: '@' + tweet.user.screen_name, in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
+                T.post('statuses/update', { status: '@' + tweet.user.screen_name + ' ' + keyword, in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
                   console.log('[REPLY] ' + data.user.screen_name + ': ' + data.text);
                 });
               } else {
