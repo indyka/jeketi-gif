@@ -26,7 +26,7 @@ T.get('lists/members', { slug: 'gif', owner_id: '998239643463139328', count: 70 
   var streamT = T.stream('statuses/filter', { follow: users });
   streamT.on('tweet', function (tweet) {
     console.log(tweet.user.screen_name + ': ' + tweet.text);
-    if (isInArray(tweet.user.id_str, users)) {
+    if (isInArray(tweet.user.id_str, users) && tweet.in_reply_to_status_id == null) {
       keyword = tweet.text.split(" ");
       keyword = keyword[Math.floor(Math.random() * keyword.length)]
       giphy.translate({s: keyword}, function(error, gif, res){
