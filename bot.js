@@ -20,13 +20,13 @@ var T = new Twit({
 
 console.log('Listening to Twitter...');
 
-T.get('lists/members', { slug: 'gif', owner_id: '998239643463139328', count: 70 },  function (err, data, response) {
+T.get('lists/members', { slug: 'team-t', owner_screen_name: 'officialjkt48', count: 70 },  function (err, data, response) {
   users = data.users.map(a => a.id_str);
   console.log(users);
   var streamT = T.stream('statuses/filter', { follow: users });
   streamT.on('tweet', function (tweet) {
     console.log(tweet.user.screen_name + ': ' + tweet.text);
-    if (isInArray(tweet.user.id_str, users) && tweet.in_reply_to_status_id == null) {
+    if (isInArray(tweet.user.id_str, users) && tweet.in_reply_to_status_id == null && tweet.text != null) {
       keyword = tweet.text.split(" ");
       keyword = keyword[Math.floor(Math.random() * keyword.length)]
       giphy.translate({s: keyword}, function(error, gif, res){
