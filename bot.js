@@ -20,13 +20,14 @@ var T = new Twit({
 
 console.log('Listening to Twitter...');
 
-T.get('lists/members', { slug: 'team-t', owner_screen_name: 'officialjkt48', count: 70 },  function (err, data, response) {
+T.get('lists/members', { slug: 'crawled-members', owner_screen_name: 'balesin_timti', count: 70 },  function (err, data, response) {
   users = data.users.map(a => a.id_str);
   console.log(users);
   var streamT = T.stream('statuses/filter', { follow: users });
   streamT.on('tweet', function (tweet) {
     console.log(tweet.user.screen_name + ': ' + tweet.text);
     if (isInArray(tweet.user.id_str, users) && tweet.in_reply_to_status_id == null && tweet.text != null) {
+      console.log('Replying...');
       keyword = tweet.text.split(" ");
       keyword = keyword[Math.floor(Math.random() * keyword.length)]
       giphy.translate({s: keyword}, function(error, gif, res){
@@ -43,8 +44,8 @@ T.get('lists/members', { slug: 'team-t', owner_screen_name: 'officialjkt48', cou
             var meta_params = { media_id: mediaIdStr }    
             T.post('media/metadata/create', meta_params, function (err, data, response) {
               if (!err) {  
-                T.post('statuses/update', { status: '@' + tweet.user.screen_name + ' ' + keyword, in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
-                  console.log('[REPLY] ' + data.user.screen_name + ': ' + data.text);
+                T.post('statuses/update', { status: '@' + tweet.user.screen_name + ' ' + keyword + '...', in_reply_to_status_id: tweet.id_str, media_ids: [mediaIdStr] }, function(err, data, response) {
+                  console.log(data);
                 });
               } else {
                 console.log('[ERROR] ' + response);
