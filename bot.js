@@ -20,7 +20,7 @@ var T = new Twit({
 
 console.log('Listening to Twitter...');
 
-T.get('lists/members', { slug: 'crawled-members', owner_screen_name: 'balesin_timti', count: 70 },  function (err, data, response) {
+T.get('lists/members', { slug: process.env.listSlug, owner_screen_name: process.env.ownerScreenName, count: 70 },  function (err, data, response) {
   users = data.users.map(a => a.id_str);
   console.log(users);
   var streamT = T.stream('statuses/filter', { follow: users });
